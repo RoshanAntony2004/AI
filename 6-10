@@ -1,0 +1,203 @@
+PROGRAM 6
+from itertools import permutations
+
+def tsp_simple(graph):
+    n = len(graph)
+    min_dist = float('inf')
+    
+    for path in permutations(range(1, n)):  # Start from city 0, permute others
+        total = graph[0][path[0]]  # 0 to first city
+        
+        # Travel between cities in permutation
+        for i in range(len(path)-1):
+            total += graph[path[i]][path[i+1]]
+        
+        total += graph[path[-1]][0]  # Return to start
+        
+        min_dist = min(min_dist, total)
+    
+    return min_dist
+
+# Test
+graph = [
+    [0, 10, 15, 20],
+    [10, 0, 35, 25],
+    [15, 35, 0, 30],
+    [20, 25, 30, 0]
+]
+
+print(f"Shortest route distance: {tsp_simple(graph)}")
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+PROGRAM 7
+def hanoi_simple(n, src, dest, aux):
+    """Simplified Tower of Hanoi with step counter"""
+    if n > 0:
+        # Move n-1 disks to auxiliary rod
+        hanoi_simple(n-1, src, aux, dest)
+        
+        # Move the nth disk
+        print(f"Move disk {n} from {src} to {dest}")
+        
+        # Move n-1 disks to destination
+        hanoi_simple(n-1, aux, dest, src)
+
+# Test with different numbers of disks
+for disks in [1, 2, 3]:
+    print(f"\n{disks} disk(s):")
+    hanoi_simple(disks, 'A', 'C', 'B')
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+PROGRAM 8
+class Monkey:
+    def __init__(self):
+        self.height = 0
+        self.position = None
+        self.has_banana = False
+
+class World:
+    def __init__(self):
+        self.positions = ["A", "B", "C"]
+        self.monkey = Monkey()
+        self.box_position = "B"
+        self.tree_position = "C"
+        
+    def solve(self):
+        print("1. Monkey moves to position B")
+        self.monkey.position = "B"
+        
+        print("2. Monkey pushes box to position C")
+        self.monkey.position = "C"
+        self.box_position = "C"
+        
+        print("3. Monkey climbs the box")
+        self.monkey.height = 2
+        
+        print("4. Monkey takes the banana!")
+        self.monkey.has_banana = True
+        
+        return "Success! Monkey got the banana."
+
+# Run the solution
+world = World()
+world.monkey.position = "A"  # Start position
+result = world.solve()
+print(f"\nResult: {result}")
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+PROGRAM 9:
+
+import math
+import random
+
+class AlphaBetaPruning:
+    def __init__(self, max_depth=5):
+        self.max_depth = max_depth
+        self.nodes_evaluated = 0
+    
+    def minimax(self, depth, node_index, maximizing_player, 
+                values, alpha, beta):
+        """Alpha-Beta Pruning algorithm implementation"""
+        self.nodes_evaluated += 1
+        
+        # Terminal conditions
+        if depth == self.max_depth:
+            return values[node_index]
+        
+        if maximizing_player:
+            max_eval = -math.inf
+            for i in range(2):  # Binary tree assumption
+                eval = self.minimax(depth + 1, node_index * 2 + i, 
+                                  False, values, alpha, beta)
+                max_eval = max(max_eval, eval)
+                alpha = max(alpha, eval)
+                
+                # Alpha-Beta Pruning
+                if beta <= alpha:
+                    break
+            return max_eval
+        else:
+            min_eval = math.inf
+            for i in range(2):  # Binary tree assumption
+                eval = self.minimax(depth + 1, node_index * 2 + i, 
+                                  True, values, alpha, beta)
+                min_eval = min(min_eval, eval)
+                beta = min(beta, eval)
+                
+                # Alpha-Beta Pruning
+                if beta <= alpha:
+                    break
+            return min_eval
+
+# Example usage
+def basic_example():
+    """Basic example with a simple game tree"""
+    abp = AlphaBetaPruning(max_depth=3)
+    
+    # Game tree values (leaf nodes)
+    values = [3, 5, 6, 9, 1, 2, 0, -1, 10, 12, 14, 15, 8, 7, 4, 3]
+    
+    print("Game Tree Values:", values)
+    print("Max Depth:", abp.max_depth)
+    
+    result = abp.minimax(0, 0, True, values, -math.inf, math.inf)
+    print(f"Optimal value: {result}")
+    print(f"Nodes evaluated: {abp.nodes_evaluated}")
+
+basic_example()
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+PROGRAM 10
+
+def solve_n_queens(n=8):
+    """
+    Solve the N-Queens problem using backtracking
+    Returns all distinct solutions
+    """
+    def is_safe(board, row, col):
+        # Check this row on left side
+        for i in range(col):
+            if board[row][i] == 1:
+                return False
+        
+        # Check upper diagonal on left side
+        for i, j in zip(range(row, -1, -1), range(col, -1, -1)):
+            if board[i][j] == 1:
+                return False
+        
+        # Check lower diagonal on left side
+        for i, j in zip(range(row, n), range(col, -1, -1)):
+            if board[i][j] == 1:
+                return False
+        
+        return True
+
+    def solve(col, board, solutions):
+        # Base case: all queens are placed
+        if col >= n:
+            solutions.append([row[:] for row in board])
+            return
+        
+        # Try placing queen in all rows of this column
+        for row in range(n):
+            if is_safe(board, row, col):
+                board[row][col] = 1  # Place queen
+                solve(col + 1, board, solutions)
+                board[row][col] = 0  # Backtrack
+
+    # Initialize empty board
+    board = [[0] * n for _ in range(n)]
+    solutions = []
+    solve(0, board, solutions)
+    return solutions
+
+def print_solution(solution):
+    """Print a single solution in a readable format"""
+    for row in solution:
+        print(' '.join('Q' if cell == 1 else '.' for cell in row))
+    print()
+
+# Solve and display
+solutions = solve_n_queens(8)
+print(f"Number of solutions for 8 queens: {len(solutions)}")
+print("\nFirst solution:")
+print_solution(solutions[0])
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
